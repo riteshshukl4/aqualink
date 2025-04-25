@@ -19,7 +19,7 @@ const phoneRegex = new RegExp(
 );
 
 const formSchema = z.object({
-  phoneNumber: z.string().regex(phoneRegex, "Invalid Phone Number!"),
+  phoneNumber: z.string().regex(phoneRegex, "Invalid Phone Number!").length(10, "Phone number must be 10 digits"),
   name: z.string().optional(),
   role: z.enum(["user", "driver", "admin"]),
 });
@@ -239,3 +239,4 @@ export default function AuthPage() {
     </div>
   );
 }
+
