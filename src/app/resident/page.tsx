@@ -12,6 +12,7 @@ import { WaterDropIcon } from "@/components/ui/water-drop-icon";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { Badge } from "@/components/ui/badge";
 
 const ResidentPage = () => {
   const [requestStatus, setRequestStatus] = useState<"pending" | "fulfilled" | "none">("none");
