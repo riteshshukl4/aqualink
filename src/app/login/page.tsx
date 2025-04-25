@@ -79,6 +79,19 @@ export default function AuthPage() {
                       onChange={(e) => setPhoneNumber(e.target.value)}
                     />
                   </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Role</label>
+                    <Select value={role} onValueChange={setRole}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="driver">Tanker Driver</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <Button className="w-full" onClick={handleSendOTP}>
                     Send OTP
                   </Button>
@@ -174,3 +187,4 @@ export default function AuthPage() {
     </div>
   );
 }
+
