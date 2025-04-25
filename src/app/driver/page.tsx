@@ -28,6 +28,10 @@ const DriverPage = () => {
     { id: 3, resident: 'Resident C', address: '789 Oak St', amount: 800, urgency: 'low', status: 'pending' },
   ]);
   const [routeOptimization, setRouteOptimization] = useState(false);
+  const [todaysDeliveries, setTodaysDeliveries] = useState<WaterRequest[]>([
+    { id: 4, resident: 'Resident D', address: '321 Pine St', amount: 1200, urgency: 'medium', status: 'completed' },
+    { id: 5, resident: 'Resident E', address: '654 Cherry St', amount: 900, urgency: 'low', status: 'completed' },
+  ]);
 
   const handleLogout = () => {
     // Implement logout logic here, e.g., clearing authentication tokens
@@ -139,6 +143,30 @@ const DriverPage = () => {
                 <span>Status:</span>
                 <Badge variant="secondary">Available</Badge>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Today's Delivery History */}
+          <Card className="col-span-1 md:col-span-2">
+            <CardHeader>
+              <CardTitle>Today's Deliveries</CardTitle>
+            </CardHeader>
+            <CardContent className="h-[300px]">
+              <ScrollArea className="h-full">
+                <div className="flex flex-col space-y-2">
+                  {todaysDeliveries.map(request => (
+                    <div key={request.id}>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span>{request.resident} - {request.address}</span>
+                        </div>
+                        <Badge variant="secondary">Completed</Badge>
+                      </div>
+                      <Separator />
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
             </CardContent>
           </Card>
         </div>
