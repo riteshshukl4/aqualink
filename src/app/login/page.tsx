@@ -54,7 +54,7 @@ export default function AuthPage() {
     console.log("Form Data:", data); // For testing
   };
 
-  const handleVerifyOTP = () => {
+  const handleVerifyOTP = (data: FormValues) => {
     // Add your OTP verification logic here
     toast({
       title: "Success",
@@ -62,7 +62,19 @@ export default function AuthPage() {
     });
 
     // Replace with actual authentication logic
-    router.push('/resident');
+    switch (data.role) {
+      case "user":
+        router.push('/resident');
+        break;
+      case "driver":
+        router.push('/driver');
+        break;
+      case "admin":
+        router.push('/admin');
+        break;
+      default:
+        router.push('/'); // Redirect to home if role is not recognized
+    }
   };
 
   return (
@@ -146,7 +158,7 @@ export default function AuthPage() {
                       )}
                     />
                   </div>
-                  <Button className="w-full" onClick={handleVerifyOTP}>
+                  <Button className="w-full" onClick={() => handleSubmit(handleVerifyOTP)()}>
                     Verify OTP
                   </Button>
                 </div>
@@ -227,7 +239,7 @@ export default function AuthPage() {
                       )}
                     />
                   </div>
-                  <Button className="w-full" onClick={handleVerifyOTP}>
+                  <Button className="w-full" onClick={() => handleSubmit(handleVerifyOTP)()}>
                     Create Account
                   </Button>
                 </div>
@@ -239,4 +251,3 @@ export default function AuthPage() {
     </div>
   );
 }
-
