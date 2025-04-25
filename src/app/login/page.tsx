@@ -10,22 +10,48 @@ import { toast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const phoneRegex = new RegExp(
+  /^([+]?[\s0-9]+)?(\d{3}|[\s(0-9-)]*)([\s)0-9-]+)?([\s\-0-9\\/]+)$/
+);
+
+const formSchema = z.object({
+  phoneNumber: z.string().regex(phoneRegex, "Invalid Phone Number!"),
+  name: z.string().optional(),
+  role: z.enum(["user", "driver", "admin"]),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export default function AuthPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [otp, setOtp] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [name, setName] = useState("");
-  const [role, setRole] = useState("user");
   const router = useRouter();
 
-  const handleSendOTP = () => {
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      phoneNumber: "",
+      name: "",
+      role: "user",
+    },
+  });
+
+  const handleSendOTP = (data: FormValues) => {
     // Add your OTP sending logic here
     setIsVerifying(true);
     toast({
       title: "OTP Sent",
       description: "Please check your phone for the verification code",
     });
+    console.log("Form Data:", data); // For testing
   };
 
   const handleVerifyOTP = () => {
@@ -35,15 +61,8 @@ export default function AuthPage() {
       description: "You have been successfully authenticated",
     });
 
-    if (role === "user") {
-      router.push("/resident");
-    } else if (role === "driver") {
-      router.push("/driver");
-    } else if (role === "admin") {
-      router.push("/admin");
-    } else {
-      router.push("/");
-    }
+    // Replace with actual authentication logic
+    router.push('/resident');
   };
 
   return (
@@ -69,33 +88,47 @@ export default function AuthPage() {
 
             <TabsContent value="login">
               {!isVerifying ? (
-                <div className="space-y-4">
+                <form onSubmit={handleSubmit(handleSendOTP)} className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Phone Number</label>
-                    <Input
-                      type="tel"
-                      placeholder="Enter your phone number"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
+                    <Controller
+                      name="phoneNumber"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          type="tel"
+                          placeholder="Enter your phone number"
+                          {...field}
+                        />
+                      )}
                     />
+                    {errors.phoneNumber && (
+                      <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Role</label>
-                    <Select value={role} onValueChange={setRole}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select your role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="user">User</SelectItem>
-                        <SelectItem value="driver">Tanker Driver</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="role"
+                      control={control}
+                      render={({ field }) => (
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select your role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="user">User</SelectItem>
+                            <SelectItem value="driver">Tanker Driver</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
                   </div>
-                  <Button className="w-full" onClick={handleSendOTP}>
+                  <Button className="w-full" type="submit">
                     Send OTP
                   </Button>
-                </div>
+                </form>
               ) : (
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -122,42 +155,61 @@ export default function AuthPage() {
 
             <TabsContent value="signup">
               {!isVerifying ? (
-                <div className="space-y-4">
+                <form onSubmit={handleSubmit(handleSendOTP)} className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Name</label>
-                    <Input
-                      type="text"
-                      placeholder="Enter your name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
+                    <Controller
+                      name="name"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          type="text"
+                          placeholder="Enter your name"
+                          {...field}
+                        />
+                      )}
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Phone Number</label>
-                    <Input
-                      type="tel"
-                      placeholder="Enter your phone number"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
+                    <Controller
+                      name="phoneNumber"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          type="tel"
+                          placeholder="Enter your phone number"
+                          {...field}
+                        />
+                      )}
                     />
+                    {errors.phoneNumber && (
+                      <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Role</label>
-                    <Select value={role} onValueChange={setRole}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select your role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="user">User</SelectItem>
-                        <SelectItem value="driver">Tanker Driver</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="role"
+                      control={control}
+                      render={({ field }) => (
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select your role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="user">User</SelectItem>
+                            <SelectItem value="driver">Tanker Driver</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
                   </div>
-                  <Button className="w-full" onClick={handleSendOTP}>
+                  <Button className="w-full" type="submit">
                     Send OTP
                   </Button>
-                </div>
+                </form>
               ) : (
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -187,4 +239,3 @@ export default function AuthPage() {
     </div>
   );
 }
-
