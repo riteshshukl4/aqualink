@@ -176,7 +176,7 @@ const Header = () => {
 
 // Footer component
 const Footer = () => (
-  <footer className="bg-foreground text-white pt-12 pb-6">
+  <footer className="bg-black text-white pt-12 pb-6">
     <div className="container mx-auto px-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
         <div>
@@ -373,30 +373,26 @@ export default function Home() {
               transition={{ duration: 1, ease: "easeOut", delay: 0.6 }}
               className="mt-16 relative"
             >
-              <div className="bg-white rounded-xl shadow-xl p-4 sm:p-6 max-w-4xl mx-auto overflow-hidden border border-primary/10 shadow-glow">
+              <div>
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <img 
-                    src="https://images.unsplash.com/photo-1583937443600-ba80aad89267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" 
-                    alt="Water tanker delivery service illustration" 
-                    className="w-full h-auto rounded-lg object-cover shadow-sm"
-                  />
+
                 </motion.div>
               </div>
               
               {/* Floating feature badges */}
-              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 flex flex-wrap justify-center gap-3 w-full">
-                <motion.div 
+              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 flex flex-wrap justify-center gap-3  w-full">
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.9 }}
                   whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(59, 130, 246, 0.2)" }}
-                  className="glass-effect rounded-full shadow-lg p-3 flex items-center gap-2 text-muted-foreground border border-white/50"
+                  className="glass-effect rounded-full shadow-lg p-3 flex items-center gap-2 text-muted-foreground border border-black/50"
                 >
                   <Info className="h-5 w-5 text-primary" />
-                  <span className="text-sm font-medium">24/7 Support</span>
+                  <span className="text-sm font-medium text-white">24/7 Support</span>
                 </motion.div>
                 
                 <motion.div 
@@ -404,10 +400,10 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 1.1 }}
                   whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(59, 130, 246, 0.2)" }}
-                  className="glass-effect rounded-full shadow-lg p-3 flex items-center gap-2 text-muted-foreground border border-white/50"
+                  className="glass-effect rounded-full shadow-lg p-3 flex items-center gap-2 text-muted-foreground border border-black/50"
                 >
                   <Droplet className="h-5 w-5 text-primary" />
-                  <span className="text-sm font-medium">Fast Delivery</span>
+                  <span className="text-sm font-medium text-white">Fast Delivery</span>
                 </motion.div>
                 
                 <motion.div 
@@ -415,10 +411,10 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 1.3 }}
                   whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(59, 130, 246, 0.2)" }}
-                  className="glass-effect rounded-full shadow-lg p-3 flex items-center gap-2 text-muted-foreground border border-white/50"
+                  className="glass-effect rounded-full shadow-lg p-3 flex items-center gap-2 text-muted-foreground border border-black/50"
                 >
-                  <Check className="h-5 w-5 text-primary" />
-                  <span className="text-sm font-medium">Verified Quality</span>
+                  <Check className="h-5 w-5  text-primary" />
+                  <span className="text-sm font-medium text-white">Verified Quality</span>
                 </motion.div>
               </div>
             </motion.div>
@@ -468,18 +464,19 @@ export default function Home() {
             >
               <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden hover-lift border border-white/50">
                 <div className="md:flex">
-                  <div className="md:shrink-0">
+                  <div className="md:shrink-0 h-95 w-100">
                     <motion.div
                       whileHover={{ scale: 1.05 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <img className="h-full w-full md:w-56 object-cover" 
-                        src="https://images.unsplash.com/photo-1608501078713-8e445a709b39?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=350&q=80" 
-                        alt="Water tanker" />
+                    <img className="w-64 h-100 mt-5 ml-4 md:w-72 rounded-lg object-cover shadow-sm pb-5 md rounded-2xl"
+                    src="https://images.pexels.com/photos/4666754/pexels-photo-4666754.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" // Replace with the direct image URL
+                    alt="Water tanker"
+                    />
                     </motion.div>
                   </div>
                   <div className="p-6 md:p-8">
-                    <p className="mt-2 text-base text-muted-foreground">
+                    <p className="mt-2 text-base text-black">
                       AquaLink is designed to streamline the process of requesting, delivering, and
                       monitoring water tankers. This platform caters to Residents, Tanker Drivers, and
                       Admins, providing role-specific interfaces and functionalities.
@@ -510,7 +507,7 @@ export default function Home() {
                         <div className="rounded-full bg-primary/10 p-1 mr-3 mt-0.5">
                           <Check className="h-5 w-5 text-primary" />
                         </div>
-                        <span>
+                        <span className='text-black'>
                           <strong className="font-semibold">User Roles:</strong> Residents, Tanker Drivers, and Admins with distinct access levels.
                         </span>
                       </motion.li>
@@ -525,7 +522,7 @@ export default function Home() {
                         <div className="rounded-full bg-primary/10 p-1 mr-3 mt-0.5">
                           <Check className="h-5 w-5 text-primary" />
                         </div>
-                        <span>
+                        <span className='text-black'>
                           <strong className="font-semibold">Request Submission:</strong> Residents can submit water tanker requests with details like address, water amount, and urgency.
                         </span>
                       </motion.li>
@@ -540,7 +537,7 @@ export default function Home() {
                         <div className="rounded-full bg-primary/10 p-1 mr-3 mt-0.5">
                           <Check className="h-5 w-5 text-primary" />
                         </div>
-                        <span>
+                        <span className='text-black'>
                           <strong className="font-semibold">Driver Task List:</strong> Tanker drivers can view and manage their assigned delivery tasks.
                         </span>
                       </motion.li>
@@ -555,8 +552,8 @@ export default function Home() {
                         <div className="rounded-full bg-primary/10 p-1 mr-3 mt-0.5">
                           <Check className="h-5 w-5 text-primary" />
                         </div>
-                        <span>
-                          <strong className="font-semibold">Admin Dashboard:</strong> Admins can monitor all platform activities, track deliveries, and manage users.
+                        <span className='text-black'>
+                          <strong className="font-semibold text-black">Admin Dashboard:</strong> Admins can monitor all platform activities, track deliveries, and manage users.
                         </span>
                       </motion.li>
                     </motion.ul>
@@ -568,7 +565,7 @@ export default function Home() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-16 sm:py-24 bg-gradient-to-b from-white to-secondary/30">
+        <section id="features" className="py-16 sm:py-24 bg-black text-white relative overflow-hidden">
           <div className="container mx-auto px-4 relative">
             {/* Decorative elements */}
             <div className="absolute top-0 right-0 -mt-10 hidden lg:block">
@@ -589,7 +586,7 @@ export default function Home() {
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.7 }}
               >
-                <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                   <span className="relative inline-block">
                     Key Features
                     <span className="absolute -bottom-2 left-0 right-0 h-1 bg-primary/30 rounded-full"></span>
@@ -603,7 +600,7 @@ export default function Home() {
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
               >
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                <p className="text-lg text-white max-w-2xl mx-auto">
                   Discover the powerful features that make AquaLink the leading water tanker management platform
                 </p>
               </motion.div>
@@ -636,7 +633,7 @@ export default function Home() {
                     <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg w-12 h-12 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                       <ClipboardList className="h-6 w-6 text-primary" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-foreground">Easy Request Submission</h3>
+                    <h3 className="text-xl font-bold mb-3 text-black">Easy Request Submission</h3>
                     <p className="text-muted-foreground flex-grow">
                       Residents can quickly submit water tanker requests with all necessary details. Our intuitive form makes it simple to specify your needs.
                     </p>
@@ -662,7 +659,7 @@ export default function Home() {
                     <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg w-12 h-12 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                       <Droplet className="h-6 w-6 text-primary" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-foreground">Task Management for Drivers</h3>
+                    <h3 className="text-xl font-bold mb-3 text-black">Task Management for Drivers</h3>
                     <p className="text-muted-foreground flex-grow">
                       Tanker drivers can efficiently manage their assigned delivery tasks with our intuitive driver dashboard and mobile app.
                     </p>
@@ -688,7 +685,7 @@ export default function Home() {
                     <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg w-12 h-12 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                       <LineChart className="h-6 w-6 text-primary" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-foreground">Admin Monitoring Dashboard</h3>
+                    <h3 className="text-xl font-bold mb-3 text-black">Admin Monitoring Dashboard</h3>
                     <p className="text-muted-foreground flex-grow">
                       Admins have access to a comprehensive dashboard to monitor platform activities, track deliveries, and manage system users.
                     </p>
@@ -711,7 +708,7 @@ export default function Home() {
               className="mt-16 text-center"
             >
               <Link href="/login">
-                <Button size="lg" className="group btn-water-ripple shadow-lg hover:shadow-primary/20">
+                <Button size="lg" className="group btn-black shadow-lg hover:shadow-primary/20">
                   Get Started Today
                   <ExternalLink className="h-5 w-5 ml-2 group-hover:rotate-12 transition-transform" />
                 </Button>
@@ -765,7 +762,7 @@ export default function Home() {
                   }}
                 >
                   <Link href="/login">
-                    <Button size="lg" variant="secondary" className="text-primary hover:text-primary-foreground shadow-lg hover:shadow-xl transition-all w-full sm:w-auto">
+                    <Button size="lg" variant="secondary" className="text-white bg-black hover:text-black hover:bg-white/20 border border-white/30 hover:border-white/50 w-full sm:w-auto">
                       Create Account
                     </Button>
                   </Link>
@@ -790,7 +787,7 @@ export default function Home() {
       </main>
       
       {/* Footer */}
-      <footer className="bg-foreground text-white pt-12 pb-6">
+      <footer className="bg-black text-white pt-12 pb-6">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
             <motion.div
