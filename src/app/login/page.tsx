@@ -9,12 +9,14 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { toast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
 import { useRouter } from 'next/navigation';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function AuthPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [otp, setOtp] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [name, setName] = useState("");
+  const [role, setRole] = useState("user");
   const router = useRouter();
 
   const handleSendOTP = () => {
@@ -32,6 +34,16 @@ export default function AuthPage() {
       title: "Success",
       description: "You have been successfully authenticated",
     });
+
+    if (role === "user") {
+      router.push("/resident");
+    } else if (role === "driver") {
+      router.push("/driver");
+    } else if (role === "admin") {
+      router.push("/admin");
+    } else {
+      router.push("/");
+    }
   };
 
   return (
@@ -115,6 +127,19 @@ export default function AuthPage() {
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Role</label>
+                    <Select value={role} onValueChange={setRole}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="driver">Tanker Driver</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <Button className="w-full" onClick={handleSendOTP}>
                     Send OTP
