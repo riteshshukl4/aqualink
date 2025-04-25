@@ -4,10 +4,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { WaterDropIcon } from "@/components/ui/water-drop-icon";
+import { useRouter } from 'next/navigation';
 
 const DriverPage = () => {
+  const router = useRouter();
+
+  const handleLogout = () => {
+    // Implement logout logic here, e.g., clearing authentication tokens
+    router.push('/'); // Redirect to the home page after logout
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background">
+      {/* Header */}
+      <header className="bg-secondary border-b border-border h-16 flex items-center justify-between px-4">
+        <WaterDropIcon className="h-8 w-8 text-primary" />
+        <span className="text-lg font-semibold">Driver Dashboard</span>
+        <Button variant="outline" size="sm" onClick={handleLogout}>
+          Logout
+        </Button>
+      </header>
+
       <main className="flex flex-1 p-4 sm:p-6">
         <div className="container mx-auto grid gap-4 grid-cols-1 md:grid-cols-2">
 
