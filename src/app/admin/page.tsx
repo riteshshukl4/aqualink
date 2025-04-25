@@ -8,6 +8,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { WaterDropIcon } from "@/components/ui/water-drop-icon";
 import { useRouter } from 'next/navigation';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 const AdminPage = () => {
   const router = useRouter();
@@ -183,6 +185,49 @@ const AdminPage = () => {
                   {/* Add more notification items here */}
                 </div>
               </ScrollArea>
+            </CardContent>
+          </Card>
+
+          {/* Anomaly Detection */}
+          <Card className="col-span-1 md:col-span-2 lg:col-span-1">
+            <CardHeader>
+              <CardTitle>Anomaly Detection</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {/* Mismatch Alerts */}
+                <div>
+                  <Alert variant="destructive">
+                    <Info className="h-4 w-4" />
+                    <AlertTitle>Mismatch Alert!</AlertTitle>
+                    <AlertDescription>
+                      Delivery ID #123: Requested 1000L, delivered 800L.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+
+                {/* Driver Deviation Warnings */}
+                <div>
+                  <Alert variant="secondary">
+                    <Info className="h-4 w-4" />
+                    <AlertTitle>Driver Deviation Warning</AlertTitle>
+                    <AlertDescription>
+                      Driver #456 deviated 5km from assigned route on Delivery ID #789.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+
+                {/* Fraud Detection Patterns */}
+                <div>
+                  <Alert variant="outline">
+                    <Info className="h-4 w-4" />
+                    <AlertTitle>Fraud Detection Pattern</AlertTitle>
+                    <AlertDescription>
+                      Multiple requests from same IP address detected. User: Resident A.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
