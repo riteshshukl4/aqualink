@@ -16,12 +16,12 @@ import { Badge } from "@/components/ui/badge";
 import * as React from 'react';
 
 const ResidentPage = () => {
-  const [requestStatus, setRequestStatus<"pending" | "fulfilled" | "none">("none");
-  const [isRequesting, setIsRequesting(false);
-  const [estimatedPrice, setEstimatedPrice<number | null>(null);
-  const [address, setAddress("");
-  const [amount, setAmount<number | null>(null);
-  const [details, setDetails("");
+  const [requestStatus, setRequestStatus] = useState<"pending" | "fulfilled" | "none">("none");
+  const [isRequesting, setIsRequesting] = useState(false);
+  const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null);
+  const [address, setAddress] = useState("");
+  const [amount, setAmount] = useState<number | null>(null);
+  const [details, setDetails] = useState("");
   const router = useRouter();
   const uniqueClipId = React.useMemo(() => `clip-${Math.random().toString(36).substring(2, 15)}`, []);
 
