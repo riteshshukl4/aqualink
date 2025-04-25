@@ -24,6 +24,7 @@ const ResidentPage = () => {
   const [details, setDetails] = useState("");
   const router = useRouter();
   const uniqueClipId = React.useMemo(() => `clip-${Math.random().toString(36).substring(2, 15)}`, []);
+  const [activeDeliveryOtp, setActiveDeliveryOtp] = useState<string | null>(null);
 
 
   const handleWaterRequest = async () => {
@@ -36,6 +37,10 @@ const ResidentPage = () => {
       title: "Request Submitted",
       description: "Your water request has been submitted and is pending approval.",
     });
+
+    // Generate a sample OTP and store it in state
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    setActiveDeliveryOtp(otp);
   };
 
   const handleLogout = () => {
@@ -145,6 +150,12 @@ const ResidentPage = () => {
               )}
               {requestStatus === "fulfilled" && (
                 <div>Your request has been fulfilled.</div>
+              )}
+              {activeDeliveryOtp && (
+                <div className="mt-4">
+                  <p>Your delivery is in progress. OTP for verification:</p>
+                  <div className="font-bold text-xl">{activeDeliveryOtp}</div>
+                </div>
               )}
             </CardContent>
           </Card>
