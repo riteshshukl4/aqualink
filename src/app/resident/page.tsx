@@ -7,10 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
+import { useRouter } from 'next/navigation';
+import { WaterDropIcon } from "@/components/ui/water-drop-icon";
 
 const ResidentPage = () => {
   const [requestStatus, setRequestStatus] = useState<"pending" | "fulfilled" | "none">("none");
   const [isRequesting, setIsRequesting] = useState(false);
+  const router = useRouter();
 
   const handleWaterRequest = async () => {
     setIsRequesting(true);
@@ -24,8 +27,22 @@ const ResidentPage = () => {
     });
   };
 
+  const handleLogout = () => {
+    // Implement logout logic here, e.g., clearing authentication tokens
+    router.push('/'); // Redirect to the home page after logout
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background">
+      {/* Header */}
+      <header className="bg-secondary border-b border-border h-16 flex items-center justify-between px-4">
+        <WaterDropIcon className="h-8 w-8 text-primary" />
+        <span className="text-lg font-semibold">User Dashboard</span>
+        <Button variant="outline" size="sm" onClick={handleLogout}>
+          Logout
+        </Button>
+      </header>
+
       <main className="flex flex-1 p-4 sm:p-6">
         <div className="container mx-auto grid gap-4 grid-cols-1 md:grid-cols-2">
 
