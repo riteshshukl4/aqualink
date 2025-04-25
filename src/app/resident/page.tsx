@@ -13,15 +13,18 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Badge } from "@/components/ui/badge";
+import * as React from 'react';
 
 const ResidentPage = () => {
-  const [requestStatus, setRequestStatus] = useState<"pending" | "fulfilled" | "none">("none");
-  const [isRequesting, setIsRequesting] = useState(false);
-  const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null);
-  const [address, setAddress] = useState("");
-  const [amount, setAmount] = useState<number | null>(null);
-  const [details, setDetails] = useState("");
+  const [requestStatus, setRequestStatus<"pending" | "fulfilled" | "none">("none");
+  const [isRequesting, setIsRequesting(false);
+  const [estimatedPrice, setEstimatedPrice<number | null>(null);
+  const [address, setAddress("");
+  const [amount, setAmount<number | null>(null);
+  const [details, setDetails("");
   const router = useRouter();
+  const uniqueClipId = React.useMemo(() => `clip-${Math.random().toString(36).substring(2, 15)}`, []);
+
 
   const handleWaterRequest = async () => {
     setIsRequesting(true);
@@ -175,12 +178,17 @@ const ResidentPage = () => {
               <CardTitle>Monthly Usage (Liters)</CardTitle>
             </CardHeader>
             <CardContent>
-              <AreaChart width={400} height={300} data={monthlyUsage} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+              <AreaChart width={400} height={300} data={monthlyUsage} margin={{ top: 5, right: 20, bottom: 5, left: 0 }} clipPath={`url(#${uniqueClipId})`}>
+                <defs>
+                  <clipPath id={uniqueClipId}>
+                    <rect x="0" y="0" width="400" height="300" />
+                  </clipPath>
+                </defs>
                 <XAxis dataKey="month" />
                 <YAxis />
                 <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
                 <Tooltip />
-                <Area type="monotone" dataKey="liters" stroke="#8884d8" fill="#8884d8" />
+                <Area type="monotone" dataKey="liters" stroke="#8884d8" fill="#8884d8" clipPath={`url(#${uniqueClipId})`} />
               </AreaChart>
             </CardContent>
           </Card>
@@ -191,12 +199,17 @@ const ResidentPage = () => {
               <CardTitle>Cost Breakdown</CardTitle>
             </CardHeader>
             <CardContent>
-              <AreaChart width={400} height={300} data={costBreakdown} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+              <AreaChart width={400} height={300} data={costBreakdown} margin={{ top: 5, right: 20, bottom: 5, left: 0 }} clipPath={`url(#${uniqueClipId})`}>
+              <defs>
+                  <clipPath id={uniqueClipId}>
+                    <rect x="0" y="0" width="400" height="300" />
+                  </clipPath>
+                </defs>
                 <XAxis dataKey="month" />
                 <YAxis />
                 <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
                 <Tooltip />
-                <Area type="monotone" dataKey="cost" stroke="#82ca9d" fill="#82ca9d" />
+                <Area type="monotone" dataKey="cost" stroke="#82ca9d" fill="#82ca9d" clipPath={`url(#${uniqueClipId})`} />
               </AreaChart>
             </CardContent>
           </Card>
