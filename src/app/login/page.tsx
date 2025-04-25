@@ -5,13 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "@/hooks/use-toast";
+import { X } from "lucide-react";
+import { useRouter } from 'next/navigation';
 
 export default function AuthPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [otp, setOtp] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [name, setName] = useState("");
+  const router = useRouter();
 
   const handleSendOTP = () => {
     // Add your OTP sending logic here
@@ -31,10 +35,18 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md bg-card text-card-foreground shadow-lg rounded-lg border-2 border-primary">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
+      <Card className="w-full max-w-md relative">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Welcome to AquaLink</CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute top-2 right-2"
+            onClick={() => router.push('/')}
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
@@ -55,7 +67,7 @@ export default function AuthPage() {
                       onChange={(e) => setPhoneNumber(e.target.value)}
                     />
                   </div>
-                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Button className="w-full" onClick={handleSendOTP}>
                     Send OTP
                   </Button>
                 </div>
@@ -63,14 +75,20 @@ export default function AuthPage() {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Enter OTP</label>
-                    <Input
-                      type="number"
-                      placeholder="Enter OTP"
+                    <InputOTP
                       value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
+                      onChange={setOtp}
+                      maxLength={6}
+                      render={({ slots }) => (
+                        <InputOTPGroup className="gap-2 justify-center">
+                          {slots.map((slot, index) => (
+                            <InputOTPSlot key={index} {...slot} />
+                          ))}
+                        </InputOTPGroup>
+                      )}
                     />
                   </div>
-                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Button className="w-full" onClick={handleVerifyOTP}>
                     Verify OTP
                   </Button>
                 </div>
@@ -98,7 +116,7 @@ export default function AuthPage() {
                       onChange={(e) => setPhoneNumber(e.target.value)}
                     />
                   </div>
-                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleSendOTP}>
+                  <Button className="w-full" onClick={handleSendOTP}>
                     Send OTP
                   </Button>
                 </div>
@@ -106,14 +124,20 @@ export default function AuthPage() {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Enter OTP</label>
-                    <Input
-                      type="number"
-                      placeholder="Enter OTP"
+                    <InputOTP
                       value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
+                      onChange={setOtp}
+                      maxLength={6}
+                      render={({ slots }) => (
+                        <InputOTPGroup className="gap-2 justify-center">
+                          {slots.map((slot, index) => (
+                            <InputOTPSlot key={index} {...slot} />
+                          ))}
+                        </InputOTPGroup>
+                      )}
                     />
                   </div>
-                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleVerifyOTP}>
+                  <Button className="w-full" onClick={handleVerifyOTP}>
                     Create Account
                   </Button>
                 </div>
