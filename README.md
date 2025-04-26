@@ -13,48 +13,10 @@ AquaLink is a full-stack web application designed to streamline the process of r
 
 -   **Frontend**: React.js, Next.js, ShadCN UI
 -   **Backend**: Node.js, Express.js
--   **Database**: MongoDB (planned)
--   **Realtime**: Firebase/Firestore (planned)
--   **Authentication**: Firebase Authentication
+-   **Database**: PostgreSQL
+-   **Realtime**: Supabase
+-   **Authentication**: Twilio Api
 -   **Mapping**: Google Maps API (or OpenStreetMap)
-
-## Setup Instructions
-
-1.  **Clone the repository:**
-
-    ```bash
-    git clone [repository-url]
-    cd AquaLink
-    ```
-
-2.  **Install dependencies:**
-
-    ```bash
-    npm install
-    ```
-
-3.  **Configure Firebase:**
-
-    -   Create a Firebase project on the [Firebase Console](https://console.firebase.google.com/).
-    -   Enable Firebase Authentication (Email/Password and Google).
-    -   Add your Firebase configuration to a `.env` file:
-
-        ```
-        NEXT_PUBLIC_FIREBASE_API_KEY=YOUR_API_KEY
-        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=YOUR_AUTH_DOMAIN
-        NEXT_PUBLIC_FIREBASE_PROJECT_ID=YOUR_PROJECT_ID
-        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=YOUR_STORAGE_BUCKET
-        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=YOUR_MESSAGING_SENDER_ID
-        NEXT_PUBLIC_FIREBASE_APP_ID=YOUR_APP_ID
-        ```
-
-4.  **Run the development server:**
-
-    ```bash
-    npm run dev
-    ```
-
-    Open [http://localhost:9002](http://localhost:9002) with your browser to see the application.
 
 ## MVP Flow
 
