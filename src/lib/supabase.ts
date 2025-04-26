@@ -1,4 +1,4 @@
-// src/lib/firebase.ts
+// src/lib/supabase.ts
 import { createClient } from "@supabase/supabase-js";
 
 // Retrieve the Supabase URL and anon key from environment variables
