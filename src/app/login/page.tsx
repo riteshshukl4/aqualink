@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { supabaseClient } from "@/lib/supabase";
 
 const phoneRegex = new RegExp(
   /^([+]?[\s0-9]+)?(\d{3}|[\s(0-9-)]*)([\s)0-9-]+)?([\s\-0-9\\/]+)$/
@@ -44,9 +45,25 @@ export default function AuthPage() {
     },
   });
 
-  const handleSendOTP = (data: FormValues) => {
+  const handleSendOTP = async (data: FormValues) => {
     // Add your OTP sending logic here
     setIsVerifying(true);
+
+    // Send OTP using Supabase Auth (Email OTP for now)
+    const { error } = await supabaseClient.auth.signInWithOtp({
+      phone: data.phoneNumber,
+    });
+
+    if (error) {
+      toast({
+        title: "Error Sending OTP",
+        description: error.message,
+        variant: "destructive",
+      });
+      setIsVerifying(false);
+      return;
+    }
+
     toast({
       title: "OTP Sent",
       description: "Please check your phone for the verification code",
@@ -54,8 +71,23 @@ export default function AuthPage() {
     console.log("Form Data:", data); // For testing
   };
 
-  const handleVerifyOTP = (data: FormValues) => {
-    // Add your OTP verification logic here
+  const handleVerifyOTP = async (data: FormValues) => {
+    // Verify OTP using Supabase Auth
+    const { data: authData, error } = await supabaseClient.auth.verifyOtp({
+      phone: data.phoneNumber,
+      token: otp,
+      type: 'sms',
+    });
+
+    if (error) {
+      toast({
+        title: "Error Verifying OTP",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     toast({
       title: "Success",
       description: "You have been successfully authenticated",
