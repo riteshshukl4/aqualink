@@ -1,5 +1,5 @@
 // src/utils/supabase-seed.ts
-import { supabaseClient } from "@/lib/firebase";
+import supabaseClient from "@/lib/supabase";
 
 // Define the type for water tanker request data
 interface WaterTankerRequest {
