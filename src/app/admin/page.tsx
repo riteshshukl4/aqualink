@@ -10,9 +10,31 @@ import { WaterDropIcon } from "@/components/ui/water-drop-icon";
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Info } from "lucide-react";
+import { useEffect, useState } from "react";
+
+// Dummy data for recent deliveries (replace with database fetch)
+interface Delivery {
+  id: number;
+  status: 'pending' | 'complete' | 'cancelled';
+  volumeRequested: number;
+  volumeDelivered: number;
+  driverId: string;
+  routeDeviation: number;
+  residentIp: string;
+}
 
 const AdminPage = () => {
   const router = useRouter();
+
+  const [recentDeliveries, setRecentDeliveries] = useState<Delivery[]>([
+    { id: 1, status: 'complete', volumeRequested: 1000, volumeDelivered: 1000, driverId: 'Driver123', routeDeviation: 0, residentIp: '192.168.1.1' },
+    { id: 2, status: 'complete', volumeRequested: 1500, volumeDelivered: 1500, driverId: 'Driver456', routeDeviation: 0, residentIp: '192.168.1.2' },
+    { id: 3, status: 'pending', volumeRequested: 800, volumeDelivered: 0, driverId: 'Driver789', routeDeviation: 0, residentIp: '192.168.1.3' },
+    { id: 4, status: 'cancelled', volumeRequested: 1200, volumeDelivered: 0, driverId: 'Driver123', routeDeviation: 0, residentIp: '192.168.1.4' },
+    { id: 5, status: 'complete', volumeRequested: 900, volumeDelivered: 900, driverId: 'Driver456', routeDeviation: 0, residentIp: '192.168.1.5' },
+    { id: 6, status: 'pending', volumeRequested: 1100, volumeDelivered: 0, driverId: 'Driver789', routeDeviation: 0, residentIp: '192.168.1.6' },
+    { id: 7, status: 'cancelled', volumeRequested: 700, volumeDelivered: 0, driverId: 'Driver123', routeDeviation: 0, residentIp: '192.168.1.7' },
+  ]);
 
   const chartConfig = {
     "Water Level": {
@@ -43,6 +65,19 @@ const AdminPage = () => {
   const handleLogout = () => {
     // Implement logout logic here, e.g., clearing authentication tokens
     router.push('/'); // Redirect to the home page after logout
+  };
+
+  const getStatusBadgeColor = (status: Delivery['status']) => {
+    switch (status) {
+      case 'complete':
+        return 'secondary';
+      case 'pending':
+        return 'outline';
+      case 'cancelled':
+        return 'destructive';
+      default:
+        return 'default';
+    }
   };
 
   return (
@@ -99,42 +134,15 @@ const AdminPage = () => {
             <CardContent className="h-[300px]">
               <ScrollArea className="h-full">
                 <div className="flex flex-col space-y-2">
-                  {/* Example Delivery Items */}
-                  <div className="flex justify-between">
-                    <span>Delivery #1</span>
-                    <Badge variant="secondary">Complete</Badge>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between">
-                    <span>Delivery #2</span>
-                    <Badge variant="secondary">Complete</Badge>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between">
-                    <span>Delivery #3</span>
-                    <Badge variant="outline">Pending</Badge>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between">
-                    <span>Delivery #4</span>
-                    <Badge variant="destructive">Cancelled</Badge>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between">
-                    <span>Delivery #5</span>
-                    <Badge variant="secondary">Complete</Badge>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between">
-                    <span>Delivery #6</span>
-                    <Badge variant="outline">Pending</Badge>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between">
-                    <span>Delivery #7</span>
-                    <Badge variant="destructive">Cancelled</Badge>
-                  </div>
-                  {/* Add more delivery items here */}
+                  {recentDeliveries.map(delivery => (
+                    <div key={delivery.id}>
+                      <div className="flex justify-between">
+                        <span>Delivery #{delivery.id}</span>
+                        <Badge variant={getStatusBadgeColor(delivery.status)}>{delivery.status}</Badge>
+                      </div>
+                      <Separator />
+                    </div>
+                  ))}
                 </div>
               </ScrollArea>
             </CardContent>

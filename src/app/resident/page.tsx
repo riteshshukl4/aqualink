@@ -15,6 +15,14 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { Badge } from "@/components/ui/badge";
 import * as React from 'react';
 
+// Define the structure for a water request
+interface WaterRequest {
+  id: number;
+  date: string;
+  amount: number;
+  status: 'fulfilled' | 'cancelled';
+}
+
 const ResidentPage = () => {
   const [requestStatus, setRequestStatus] = useState<"pending" | "fulfilled" | "none">("none");
   const [isRequesting, setIsRequesting] = useState(false);
@@ -26,6 +34,35 @@ const ResidentPage = () => {
   const uniqueClipId = React.useMemo(() => `clip-${Math.random().toString(36).substring(2, 15)}`, []);
   const [activeDeliveryOtp, setActiveDeliveryOtp] = useState<string | null>(null);
 
+  // Dummy data for request history (replace with database fetch)
+  const [requestHistory, setRequestHistory] = useState<WaterRequest[]>([
+    { id: 1, date: "2024-07-01", amount: 1000, status: "fulfilled" },
+    { id: 2, date: "2024-06-15", amount: 1500, status: "fulfilled" },
+    { id: 3, date: "2024-05-20", amount: 800, status: "cancelled" },
+    { id: 4, date: "2024-04-10", amount: 1200, status: "fulfilled" },
+  ]);
+
+  // Dummy data for monthly usage graph (replace with database fetch)
+  const [monthlyUsage, setMonthlyUsage] = useState< { month: string; liters: number; }[]>([
+    { month: "Jan", liters: 500 },
+    { month: "Feb", liters: 700 },
+    { month: "Mar", liters: 900 },
+    { month: "Apr", liters: 1200 },
+    { month: "May", liters: 1000 },
+    { month: "Jun", liters: 1500 },
+    { month: "Jul", liters: 1100 },
+  ]);
+
+  // Dummy data for cost breakdown (replace with database fetch)
+  const [costBreakdown, setCostBreakdown] = useState< { month: string; cost: number; }[]>([
+    { month: "Jan", cost: 5.00 },
+    { month: "Feb", cost: 7.00 },
+    { month: "Mar", cost: 9.00 },
+    { month: "Apr", cost: 12.00 },
+    { month: "May", cost: 10.00 },
+    { month: "Jun", cost: 15.00 },
+    { month: "Jul", cost: 11.00 },
+  ]);
 
   const handleWaterRequest = async () => {
     setIsRequesting(true);
@@ -57,36 +94,6 @@ const ResidentPage = () => {
       setEstimatedPrice(null);
     }
   };
-
-  // Dummy data for request history
-  const requestHistory = [
-    { id: 1, date: "2024-07-01", amount: 1000, status: "fulfilled" },
-    { id: 2, date: "2024-06-15", amount: 1500, status: "fulfilled" },
-    { id: 3, date: "2024-05-20", amount: 800, status: "cancelled" },
-    { id: 4, date: "2024-04-10", amount: 1200, status: "fulfilled" },
-  ];
-
-  // Dummy data for monthly usage graph
-  const monthlyUsage = [
-    { month: "Jan", liters: 500 },
-    { month: "Feb", liters: 700 },
-    { month: "Mar", liters: 900 },
-    { month: "Apr", liters: 1200 },
-    { month: "May", liters: 1000 },
-    { month: "Jun", liters: 1500 },
-    { month: "Jul", liters: 1100 },
-  ];
-
-  // Dummy data for cost breakdown
-  const costBreakdown = [
-    { month: "Jan", cost: 5.00 },
-    { month: "Feb", cost: 7.00 },
-    { month: "Mar", cost: 9.00 },
-    { month: "Apr", cost: 12.00 },
-    { month: "May", cost: 10.00 },
-    { month: "Jun", cost: 15.00 },
-    { month: "Jul", cost: 11.00 },
-  ];
 
   return (
     <div className="flex flex-col h-screen bg-background">
