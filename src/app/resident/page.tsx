@@ -27,11 +27,11 @@ interface WaterRequest {
 
 const ResidentPage = () => {
   const [requestStatus, setRequestStatus<"pending" | "fulfilled" | "none">("none");
-  const [isRequesting, setIsRequesting(false);
+  const [isRequesting, setIsRequesting] = useState<boolean>(false);
   const [estimatedPrice, setEstimatedPrice<number | null>(null);
-  const [address, setAddress("");
+  const [address, setAddress] = useState("");
   const [amount, setAmount<number | null>(null);
-  const [details, setDetails("");
+  const [details, setDetails] = useState("");
   const router = useRouter();
   const uniqueClipId = React.useMemo(() => `clip-${Math.random().toString(36).substring(2, 15)}`, []);
   const [activeDeliveryOtp, setActiveDeliveryOtp<string | null>(null);
@@ -110,6 +110,7 @@ const ResidentPage = () => {
       const { data, error } = await supabaseClient
         .from('water_requests')
         .insert([{
+          resident_id: (await supabaseClient.auth.getUser()).data.user?.id,
           address: address,
           amount: amount,
           details: details,
@@ -244,7 +245,7 @@ const ResidentPage = () => {
                   {requestHistory.map((request) => (
                     <div key={request.id}>
                       <div className="flex justify-between">
-                        <span>{request.date} - {request.amount} Liters</span>
+                        <span>{request.created_at} - {request.amount} Liters</span>
                         {request.status === "fulfilled" && <Badge variant="secondary">Fulfilled</Badge>}
                         {request.status === "cancelled" && <Badge variant="destructive">Cancelled</Badge>}
                       </div>
