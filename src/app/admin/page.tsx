@@ -11,6 +11,8 @@ import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Info } from "lucide-react";
 import { useEffect, useState } from "react";
+import { supabaseClient } from "@/lib/supabase";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
 // Dummy data for recent deliveries (replace with database fetch)
 interface Delivery {
@@ -26,15 +28,116 @@ interface Delivery {
 const AdminPage = () => {
   const router = useRouter();
 
-  const [recentDeliveries, setRecentDeliveries] = useState<Delivery[]>([
-    { id: 1, status: 'complete', volumeRequested: 1000, volumeDelivered: 1000, driverId: 'Driver123', routeDeviation: 0, residentIp: '192.168.1.1' },
-    { id: 2, status: 'complete', volumeRequested: 1500, volumeDelivered: 1500, driverId: 'Driver456', routeDeviation: 0, residentIp: '192.168.1.2' },
-    { id: 3, status: 'pending', volumeRequested: 800, volumeDelivered: 0, driverId: 'Driver789', routeDeviation: 0, residentIp: '192.168.1.3' },
-    { id: 4, status: 'cancelled', volumeRequested: 1200, volumeDelivered: 0, driverId: 'Driver123', routeDeviation: 0, residentIp: '192.168.1.4' },
-    { id: 5, status: 'complete', volumeRequested: 900, volumeDelivered: 900, driverId: 'Driver456', routeDeviation: 0, residentIp: '192.168.1.5' },
-    { id: 6, status: 'pending', volumeRequested: 1100, volumeDelivered: 0, driverId: 'Driver789', routeDeviation: 0, residentIp: '192.168.1.6' },
-    { id: 7, status: 'cancelled', volumeRequested: 700, volumeDelivered: 0, driverId: 'Driver123', routeDeviation: 0, residentIp: '192.168.1.7' },
-  ]);
+  const [recentDeliveries, setRecentDeliveries] = useState<Delivery[]>([]);
+  const [totalResidents, setTotalResidents] = useState<number>(0);
+  const [activeDrivers, setActiveDrivers] = useState<number>(0);
+  const [totalDeliveries, setTotalDeliveries] = useState<number>(0);
+  const [averageRating, setAverageRating] = useState<number>(0);
+  const [notifications, setNotifications] = useState<string[]>([]);
+  const [mismatchAlerts, setMismatchAlerts] = useState<any[]>([]); // Replace any with actual type
+  const [driverDeviations, setDriverDeviations] = useState<any[]>([]); // Replace any with actual type
+  const [fraudPatterns, setFraudPatterns] = useState<any[]>([]); // Replace any with actual type
+
+  useEffect(() => {
+    fetchAdminData();
+  }, []);
+
+  const fetchAdminData = async () => {
+    try {
+      // Fetch recent deliveries
+      const { data: deliveriesData, error: deliveriesError } = await supabaseClient
+        .from('deliveries')
+        .select('*')
+        .order('id', { ascending: false })
+        .limit(7);
+
+      if (deliveriesError) {
+        console.error('Error fetching recent deliveries:', deliveriesError);
+      } else {
+        setRecentDeliveries(deliveriesData || []);
+      }
+
+      // Fetch system statistics
+      const { data: residentsData, error: residentsError } = await supabaseClient
+        .from('residents')
+        .select('count');
+      if (residentsError) {
+        console.error('Error fetching total residents:', residentsError);
+      } else if (residentsData && residentsData.length > 0) {
+        setTotalResidents(residentsData[0].count || 0);
+      }
+
+      const { data: driversData, error: driversError } = await supabaseClient
+        .from('drivers')
+        .select('count');
+      if (driversError) {
+        console.error('Error fetching active drivers:', driversError);
+      } else if (driversData && driversData.length > 0) {
+        setActiveDrivers(driversData[0].count || 0);
+      }
+
+      const { data: deliveriesCountData, error: deliveriesCountError } = await supabaseClient
+        .from('deliveries')
+        .select('count');
+      if (deliveriesCountError) {
+        console.error('Error fetching total deliveries:', deliveriesCountError);
+      } else if (deliveriesCountData && deliveriesCountData.length > 0) {
+        setTotalDeliveries(deliveriesCountData[0].count || 0);
+      }
+
+      const { data: ratingData, error: ratingError } = await supabaseClient
+        .from('ratings')
+        .select('average');
+      if (ratingError) {
+        console.error('Error fetching average rating:', ratingError);
+      } else if (ratingData && ratingData.length > 0) {
+        setAverageRating(ratingData[0].average || 0);
+      }
+
+      // Fetch notifications (example, replace with your actual data source)
+      const { data: notificationsData, error: notificationsError } = await supabaseClient
+        .from('notifications')
+        .select('message')
+        .limit(3);
+
+      if (notificationsError) {
+        console.error('Error fetching notifications:', notificationsError);
+      } else {
+        setNotifications(notificationsData ? notificationsData.map(n => n.message) : []);
+      }
+
+      // Fetch anomaly detection data (example, replace with your actual queries)
+      const { data: mismatchData, error: mismatchError } = await supabaseClient
+        .from('mismatched_deliveries')
+        .select('*');
+      if (mismatchError) {
+        console.error('Error fetching mismatch alerts:', mismatchError);
+      } else {
+        setMismatchAlerts(mismatchData || []);
+      }
+
+      const { data: deviationData, error: deviationError } = await supabaseClient
+        .from('driver_deviations')
+        .select('*');
+      if (deviationError) {
+        console.error('Error fetching driver deviations:', deviationError);
+      } else {
+        setDriverDeviations(deviationData || []);
+      }
+
+      const { data: fraudData, error: fraudError } = await supabaseClient
+        .from('fraud_patterns')
+        .select('*');
+      if (fraudError) {
+        console.error('Error fetching fraud patterns:', fraudError);
+      } else {
+        setFraudPatterns(fraudData || []);
+      }
+
+    } catch (error) {
+      console.error('Error fetching admin data:', error);
+    }
+  };
 
   const chartConfig = {
     "Water Level": {
@@ -157,19 +260,19 @@ const AdminPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <span>Total Residents:</span>
-                  <p className="text-lg font-semibold">150</p>
+                  <p className="text-lg font-semibold">{totalResidents}</p>
                 </div>
                 <div>
                   <span>Active Drivers:</span>
-                  <p className="text-lg font-semibold">25</p>
+                  <p className="text-lg font-semibold">{activeDrivers}</p>
                 </div>
                 <div>
                   <span>Total Deliveries:</span>
-                  <p className="text-lg font-semibold">500</p>
+                  <p className="text-lg font-semibold">{totalDeliveries}</p>
                 </div>
                 <div>
                   <span>Average Rating:</span>
-                  <p className="text-lg font-semibold">4.5</p>
+                  <p className="text-lg font-semibold">{averageRating}</p>
                 </div>
               </div>
             </CardContent>
@@ -183,14 +286,12 @@ const AdminPage = () => {
             <CardContent className="h-[200px]">
               <ScrollArea className="h-full">
                 <div className="flex flex-col space-y-2">
-                  {/* Example Notification Items */}
-                  <div>New resident joined!</div>
-                  <Separator />
-                  <div>Tanker delivery completed.</div>
-                  <Separator />
-                  <div>Low water level detected.</div>
-                  <Separator />
-                  {/* Add more notification items here */}
+                  {notifications.map((notification, index) => (
+                    <div key={index}>
+                      {notification}
+                      <Separator />
+                    </div>
+                  ))}
                 </div>
               </ScrollArea>
             </CardContent>
@@ -204,37 +305,43 @@ const AdminPage = () => {
             <CardContent>
               <div className="space-y-4">
                 {/* Mismatch Alerts */}
-                <div>
-                  <Alert variant="destructive">
-                    <Info className="h-4 w-4" />
-                    <AlertTitle>Mismatch Alert!</AlertTitle>
-                    <AlertDescription>
-                      Delivery ID #123: Requested 1000L, delivered 800L.
-                    </AlertDescription>
-                  </Alert>
-                </div>
+                {mismatchAlerts.map((mismatch) => (
+                  <div key={mismatch.id}>
+                    <Alert variant="destructive">
+                      <Info className="h-4 w-4" />
+                      <AlertTitle>Mismatch Alert!</AlertTitle>
+                      <AlertDescription>
+                        Delivery ID #{mismatch.delivery_id}: Requested {mismatch.volume_requested}L, delivered {mismatch.volume_delivered}L.
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                ))}
 
                 {/* Driver Deviation Warnings */}
-                <div>
-                  <Alert variant="secondary">
-                    <Info className="h-4 w-4" />
-                    <AlertTitle>Driver Deviation Warning</AlertTitle>
-                    <AlertDescription>
-                      Driver #456 deviated 5km from assigned route on Delivery ID #789.
-                    </AlertDescription>
-                  </Alert>
-                </div>
+                {driverDeviations.map((deviation) => (
+                  <div key={deviation.id}>
+                    <Alert variant="secondary">
+                      <Info className="h-4 w-4" />
+                      <AlertTitle>Driver Deviation Warning</AlertTitle>
+                      <AlertDescription>
+                        Driver #{deviation.driver_id} deviated {deviation.route_deviation}km from assigned route on Delivery ID #{deviation.delivery_id}.
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                ))}
 
                 {/* Fraud Detection Patterns */}
-                <div>
-                  <Alert variant="outline">
-                    <Info className="h-4 w-4" />
-                    <AlertTitle>Fraud Detection Pattern</AlertTitle>
-                    <AlertDescription>
-                      Multiple requests from same IP address detected. User: Resident A.
-                    </AlertDescription>
-                  </Alert>
-                </div>
+                {fraudPatterns.map((pattern) => (
+                  <div key={pattern.id}>
+                    <Alert variant="outline">
+                      <Info className="h-4 w-4" />
+                      <AlertTitle>Fraud Detection Pattern</AlertTitle>
+                      <AlertDescription>
+                        Multiple requests from same IP address detected. User: {pattern.resident_id}.
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -245,5 +352,3 @@ const AdminPage = () => {
 };
 
 export default AdminPage;
-
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';

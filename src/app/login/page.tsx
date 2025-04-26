@@ -13,13 +13,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { supabaseClient } from "@/lib/supabase";
 
 const phoneRegex = new RegExp(
   /^([+]?[\s0-9]+)?(\d{3}|[\s(0-9-)]*)([\s)0-9-]+)?([\s\-0-9\\/]+)$/
 );
 
 const formSchema = z.object({
-  phoneNumber: z.string().regex(phoneRegex, "Invalid Phone Number!").length(10, "Phone number must be 10 digits"),
+  phoneNumber: z.string().regex(phoneRegex, "Invalid Phone Number!").min(10, "Phone number must be at least 10 digits"),
   name: z.string().optional(),
   role: z.enum(["user", "driver", "admin"]),
 });
@@ -44,24 +45,46 @@ export default function AuthPage() {
     },
   });
 
-  const handleSendOTP = (data: FormValues) => {
-    // Add your OTP sending logic here
+  const handleSendOTP = async (data: FormValues) => {
     setIsVerifying(true);
+
+    const { error } = await supabaseClient.auth.signInWithOtp({
+      phone: data.phoneNumber,
+    });
+
+    if (error) {
+      toast({
+        title: "Error Sending OTP",
+        description: error.message,
+        variant: "destructive",
+      });
+      setIsVerifying(false);
+      return;
+    }
+
     toast({
       title: "OTP Sent",
       description: "Please check your phone for the verification code",
     });
-    console.log("Form Data:", data); // For testing
   };
 
-  const handleVerifyOTP = (data: FormValues) => {
-    // Add your OTP verification logic here
-    toast({
-      title: "Success",
-      description: "You have been successfully authenticated",
+  const handleVerifyOTP = async (data: FormValues) => {
+    const { data: authData, error } = await supabaseClient.auth.verifyOtp({
+      phone: data.phoneNumber,
+      token: otp,
+      type: 'sms',
     });
 
-    // Replace with actual authentication logic
+    if (error) {
+      toast({
+        title: "Error Verifying OTP",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+      console.log(authData);
+    // authentication logic
     switch (data.role) {
       case "user":
         router.push('/resident');
@@ -251,3 +274,5 @@ export default function AuthPage() {
     </div>
   );
 }
+
+

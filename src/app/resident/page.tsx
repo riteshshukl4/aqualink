@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,8 @@ import { Separator } from "@/components/ui/separator";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Badge } from "@/components/ui/badge";
 import * as React from 'react';
+import { supabaseClient } from "@/lib/supabase";
+import { WaterRequests } from "@/models/water_requests";
 
 // Define the structure for a water request
 interface WaterRequest {
@@ -25,59 +27,135 @@ interface WaterRequest {
 
 const ResidentPage = () => {
   const [requestStatus, setRequestStatus] = useState<"pending" | "fulfilled" | "none">("none");
-  const [isRequesting, setIsRequesting] = useState(false);
-  const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null);
+  const [isRequesting, setIsRequesting] = useState<boolean>(false);
+  const [estimatedPrice, setEstimatedPrice<number | null>(null);
   const [address, setAddress] = useState("");
-  const [amount, setAmount] = useState<number | null>(null);
+  const [amount, setAmount<number | null>(null);
   const [details, setDetails] = useState("");
   const router = useRouter();
   const uniqueClipId = React.useMemo(() => `clip-${Math.random().toString(36).substring(2, 15)}`, []);
-  const [activeDeliveryOtp, setActiveDeliveryOtp] = useState<string | null>(null);
+  const [activeDeliveryOtp, setActiveDeliveryOtp<string | null>(null);
+  const [requestHistory, setRequestHistory<WaterRequests[]>([]);
+  const [monthlyUsage, setMonthlyUsage< { month: string; liters: number; }[]>([]);
+  const [costBreakdown, setCostBreakdown< { month: string; cost: number; }[]>([]);
 
-  // Dummy data for request history (replace with database fetch)
-  const [requestHistory, setRequestHistory] = useState<WaterRequest[]>([
-    { id: 1, date: "2024-07-01", amount: 1000, status: "fulfilled" },
-    { id: 2, date: "2024-06-15", amount: 1500, status: "fulfilled" },
-    { id: 3, date: "2024-05-20", amount: 800, status: "cancelled" },
-    { id: 4, date: "2024-04-10", amount: 1200, status: "fulfilled" },
-  ]);
+  useEffect(() => {
+    fetchResidentData();
+  }, []);
 
-  // Dummy data for monthly usage graph (replace with database fetch)
-  const [monthlyUsage, setMonthlyUsage] = useState< { month: string; liters: number; }[]>([
-    { month: "Jan", liters: 500 },
-    { month: "Feb", liters: 700 },
-    { month: "Mar", liters: 900 },
-    { month: "Apr", liters: 1200 },
-    { month: "May", liters: 1000 },
-    { month: "Jun", liters: 1500 },
-    { month: "Jul", liters: 1100 },
-  ]);
+  const fetchResidentData = async () => {
+    try {
+      // Fetch the current user's ID
+      const { data: { user } } = await supabaseClient.auth.getUser();
 
-  // Dummy data for cost breakdown (replace with database fetch)
-  const [costBreakdown, setCostBreakdown] = useState< { month: string; cost: number; }[]>([
-    { month: "Jan", cost: 5.00 },
-    { month: "Feb", cost: 7.00 },
-    { month: "Mar", cost: 9.00 },
-    { month: "Apr", cost: 12.00 },
-    { month: "May", cost: 10.00 },
-    { month: "Jun", cost: 15.00 },
-    { month: "Jul", cost: 11.00 },
-  ]);
+      if (!user) {
+        console.error('User not authenticated.');
+        router.push('/login'); // Redirect to login if not authenticated
+        return;
+      }
+
+      const userId = user.id;
+
+      // Fetch request history
+      const { data: historyData, error: historyError } = await supabaseClient
+        .from('water_requests')
+        .select('*')
+        .eq('resident_id', userId) //  RLS: Only fetch requests for the current user
+        .order('created_at', { ascending: false })
+        .limit(4);
+
+      if (historyError) {
+        console.error('Error fetching request history:', historyError);
+      } else {
+        setRequestHistory(historyData || []);
+      }
+
+      // Fetch monthly usage graph data
+      const { data: usageData, error: usageError } = await supabaseClient
+        .from('monthly_usage')
+        .select('*')
+        .eq('resident_id', userId) // RLS:  Only fetch usage for the current user
+        .order('month', { ascending: true })
+        .limit(7);
+
+      if (usageError) {
+        console.error('Error fetching monthly usage:', usageError);
+      } else {
+        setMonthlyUsage(usageData || []);
+      }
+
+      // Fetch cost breakdown data
+      const { data: costData, error: costError } = await supabaseClient
+        .from('cost_breakdown')
+        .select('*')
+         .eq('resident_id', userId) // RLS: Only fetch cost data for the current user
+        .order('month', { ascending: true })
+        .limit(7);
+
+      if (costError) {
+        console.error('Error fetching cost breakdown:', costError);
+      } else {
+        setCostBreakdown(costData || []);
+      }
+
+    } catch (error) {
+      console.error('Error fetching resident data:', error);
+    }
+  };
 
   const handleWaterRequest = async () => {
     setIsRequesting(true);
-    // Simulate an async request
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setRequestStatus("pending");
-    setIsRequesting(false);
-    toast({
-      title: "Request Submitted",
-      description: "Your water request has been submitted and is pending approval.",
-    });
+    try {
+      // Fetch the current user's ID
+      const { data: { user } } = await supabaseClient.auth.getUser();
 
-    // Generate a sample OTP and store it in state
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    setActiveDeliveryOtp(otp);
+      if (!user) {
+        console.error('User not authenticated.');
+        router.push('/login'); // Redirect to login if not authenticated
+        return;
+      }
+
+      const userId = user.id;
+
+      // Add new water request to the database
+      const { data, error } = await supabaseClient
+        .from('water_requests')
+        .insert([{
+          resident_id: userId,
+          address: address,
+          amount: amount,
+          details: details,
+          status: 'pending',
+        }]);
+
+      if (error) {
+        console.error('Error submitting water request:', error);
+        toast({
+          title: "Request Failed",
+          description: "There was an error submitting your request.",
+          variant: "destructive",
+        });
+      } else {
+        setRequestStatus("pending");
+        toast({
+          title: "Request Submitted",
+          description: "Your water request has been submitted and is pending approval.",
+        });
+
+        // Generate a sample OTP and store it in state
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        setActiveDeliveryOtp(otp);
+      }
+    } catch (error) {
+      console.error('Error submitting water request:', error);
+      toast({
+        title: "Request Failed",
+        description: "There was an error submitting your request.",
+        variant: "destructive",
+        });
+    } finally {
+      setIsRequesting(false);
+    }
   };
 
   const handleLogout = () => {
@@ -128,8 +206,8 @@ const ResidentPage = () => {
                   }} onBlur={calculatePrice} />
                 </div>
                 <div>
-                  <Label htmlFor="urgency">Additional Details</Label>
-                  <Textarea id="urgency" placeholder="Any specific instructions or urgency details?" value={details} onChange={(e) => setDetails(e.target.value)} />
+                  <Label htmlFor="details">Additional Details</Label>
+                  <Textarea id="details" placeholder="Any specific instructions or urgency details?" value={details} onChange={(e) => setDetails(e.target.value)} />
                 </div>
                 <Button onClick={handleWaterRequest} disabled={isRequesting}>
                   {isRequesting ? "Submitting..." : "Request Water"}
@@ -178,7 +256,7 @@ const ResidentPage = () => {
                   {requestHistory.map((request) => (
                     <div key={request.id}>
                       <div className="flex justify-between">
-                        <span>{request.date} - {request.amount} Liters</span>
+                        <span>{request.created_at} - {request.amount} Liters</span>
                         {request.status === "fulfilled" && <Badge variant="secondary">Fulfilled</Badge>}
                         {request.status === "cancelled" && <Badge variant="destructive">Cancelled</Badge>}
                       </div>
