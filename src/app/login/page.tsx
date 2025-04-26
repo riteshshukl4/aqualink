@@ -20,7 +20,7 @@ const phoneRegex = new RegExp(
 );
 
 const formSchema = z.object({
-  phoneNumber: z.string().regex(phoneRegex, "Invalid Phone Number!").length(10, "Phone number must be 10 digits"),
+  phoneNumber: z.string().regex(phoneRegex, "Invalid Phone Number!").min(10, "Phone number must be at least 10 digits"),
   name: z.string().optional(),
   role: z.enum(["user", "driver", "admin"]),
 });
@@ -49,7 +49,7 @@ export default function AuthPage() {
     setIsVerifying(true);
 
     const { error } = await supabaseClient.auth.signInWithOtp({
-      phone: `+1${data.phoneNumber}`,
+      phone: data.phoneNumber,
     });
 
     if (error) {
@@ -70,7 +70,7 @@ export default function AuthPage() {
 
   const handleVerifyOTP = async (data: FormValues) => {
     const { data: authData, error } = await supabaseClient.auth.verifyOtp({
-      phone: `+1${data.phoneNumber}`,
+      phone: data.phoneNumber,
       token: otp,
       type: 'sms',
     });
@@ -274,4 +274,5 @@ export default function AuthPage() {
     </div>
   );
 }
+
 
