@@ -1,4 +1,3 @@
-
 # AquaLink - Smart Water Tanker Platform
 
 AquaLink is a full-stack web application designed to streamline the process of requesting, delivering, and monitoring water tankers. This platform caters to Residents, Tanker Drivers, and Admins, providing role-specific interfaces and functionalities.
@@ -69,3 +68,4 @@ AquaLink is a full-stack web application designed to streamline the process of r
 
 -   SMS alerts for delivery updates (using Twilio API).
 -   Anomaly detection script for verifying delivery volumes.
+-   Database integration with MongoDB (planned)
