@@ -15,6 +15,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { Badge } from "@/components/ui/badge";
 import * as React from 'react';
 import { supabaseClient } from "@/lib/supabase";
+import { WaterRequests } from "@/models/water_requests";
 
 // Define the structure for a water request
 interface WaterRequest {
@@ -25,18 +26,18 @@ interface WaterRequest {
 }
 
 const ResidentPage = () => {
-  const [requestStatus, setRequestStatus] = useState<"pending" | "fulfilled" | "none">("none");
-  const [isRequesting, setIsRequesting] = useState(false);
-  const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null);
-  const [address, setAddress] = useState("");
-  const [amount, setAmount] = useState<number | null>(null);
-  const [details, setDetails] = useState("");
+  const [requestStatus, setRequestStatus<"pending" | "fulfilled" | "none">("none");
+  const [isRequesting, setIsRequesting(false);
+  const [estimatedPrice, setEstimatedPrice<number | null>(null);
+  const [address, setAddress("");
+  const [amount, setAmount<number | null>(null);
+  const [details, setDetails("");
   const router = useRouter();
   const uniqueClipId = React.useMemo(() => `clip-${Math.random().toString(36).substring(2, 15)}`, []);
-  const [activeDeliveryOtp, setActiveDeliveryOtp] = useState<string | null>(null);
-  const [requestHistory, setRequestHistory] = useState<WaterRequest[]>([]);
-  const [monthlyUsage, setMonthlyUsage] = useState< { month: string; liters: number; }[]>([]);
-  const [costBreakdown, setCostBreakdown] = useState< { month: string; cost: number; }[]>([]);
+  const [activeDeliveryOtp, setActiveDeliveryOtp<string | null>(null);
+  const [requestHistory, setRequestHistory<WaterRequests[]>([]);
+  const [monthlyUsage, setMonthlyUsage< { month: string; liters: number; }[]>([]);
+  const [costBreakdown, setCostBreakdown< { month: string; cost: number; }[]>([]);
 
   useEffect(() => {
     fetchResidentData();
@@ -44,10 +45,22 @@ const ResidentPage = () => {
 
   const fetchResidentData = async () => {
     try {
+      // Fetch the current user's ID
+      const { data: { user } } = await supabaseClient.auth.getUser();
+
+      if (!user) {
+        console.error('User not authenticated.');
+        router.push('/login'); // Redirect to login if not authenticated
+        return;
+      }
+
+      const userId = user.id;
+
       // Fetch request history
       const { data: historyData, error: historyError } = await supabaseClient
         .from('water_requests')
         .select('*')
+        .eq('resident_id', userId) //  RLS: Only fetch requests for the current user
         .order('date', { ascending: false })
         .limit(4);
 
@@ -61,6 +74,7 @@ const ResidentPage = () => {
       const { data: usageData, error: usageError } = await supabaseClient
         .from('monthly_usage')
         .select('*')
+        .eq('resident_id', userId) // RLS:  Only fetch usage for the current user
         .order('month', { ascending: true })
         .limit(7);
 
@@ -74,6 +88,7 @@ const ResidentPage = () => {
       const { data: costData, error: costError } = await supabaseClient
         .from('cost_breakdown')
         .select('*')
+         .eq('resident_id', userId) // RLS: Only fetch cost data for the current user
         .order('month', { ascending: true })
         .limit(7);
 
@@ -125,7 +140,7 @@ const ResidentPage = () => {
         title: "Request Failed",
         description: "There was an error submitting your request.",
         variant: "destructive",
-      });
+        });
     } finally {
       setIsRequesting(false);
     }
