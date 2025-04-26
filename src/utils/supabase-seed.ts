@@ -78,9 +78,153 @@ async function seedWaterTankerRequests(): Promise<void> {
   }
 }
 
+// Raw SQL queries to create tables
+const sqlQueries = [
+  `
+  -- Residents Table
+  CREATE TABLE IF NOT EXISTS residents (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      phone_number TEXT UNIQUE NOT NULL,
+      name TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  );
+  `,
+  `
+  -- Drivers Table
+  CREATE TABLE IF NOT EXISTS drivers (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      phone_number TEXT UNIQUE NOT NULL,
+      name TEXT,
+      vehicle_number TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  );
+  `,
+  `
+  -- Admins Table
+  CREATE TABLE IF NOT EXISTS admins (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      phone_number TEXT UNIQUE NOT NULL,
+      name TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  );
+  `,
+  `
+  -- Water Requests Table
+  CREATE TABLE IF NOT EXISTS water_requests (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      resident_id UUID REFERENCES residents(id),
+      address TEXT,
+      amount INTEGER,
+      details TEXT,
+      status TEXT CHECK (status IN ('pending', 'accepted', 'rejected', 'completed')),
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  );
+  `,
+  `
+  -- Deliveries Table
+  CREATE TABLE IF NOT EXISTS deliveries (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      request_id UUID REFERENCES water_requests(id),
+      driver_id UUID REFERENCES drivers(id),
+      volume_delivered INTEGER,
+      route_deviation FLOAT,
+      resident_ip TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  );
+  `,
+  `
+  -- Ratings Table
+  CREATE TABLE IF NOT EXISTS ratings (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      delivery_id UUID REFERENCES deliveries(id),
+      rating INTEGER,
+      comments TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  );
+  `,
+  `
+  -- Notifications Table
+  CREATE TABLE IF NOT EXISTS notifications (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      user_id UUID, -- Can reference residents, drivers, or admins
+      message TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  );
+  `,
+  `
+  -- Monthly Usage Table
+  CREATE TABLE IF NOT EXISTS monthly_usage (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      resident_id UUID REFERENCES residents(id),
+      month TEXT,
+      liters INTEGER
+  );
+  `,
+  `
+  -- Cost Breakdown Table
+  CREATE TABLE IF NOT EXISTS cost_breakdown (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      resident_id UUID REFERENCES residents(id),
+      month TEXT,
+      cost FLOAT
+  );
+  `,
+  `
+  -- Mismatched Deliveries Table
+  CREATE TABLE IF NOT EXISTS mismatched_deliveries (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      delivery_id UUID REFERENCES deliveries(id),
+      volume_requested INTEGER,
+      volume_delivered INTEGER
+  );
+  `,
+  `
+  -- Driver Deviations Table
+  CREATE TABLE IF NOT EXISTS driver_deviations (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      delivery_id UUID REFERENCES deliveries(id),
+      driver_id UUID REFERENCES drivers(id),
+      route_deviation FLOAT
+  );
+  `,
+  `
+  -- Fraud Patterns Table
+  CREATE TABLE IF NOT EXISTS fraud_patterns (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      resident_id UUID REFERENCES residents(id),
+      ip_address TEXT,
+      request_count INTEGER
+  );
+  `,
+  `
+  -- Enable the UUID extension
+  CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+  `
+];
+
+async function executeSqlQueries(): Promise<void> {
+  try {
+    for (const query of sqlQueries) {
+      const { error } = await supabaseClient.from('residents').select('*').limit(0)
+      if (error) {
+        const { error: queryError } = await supabaseClient.query(query);
+        if (queryError) {
+          console.error("Error executing SQL query:", queryError);
+        }
+      }
+    }
+    console.log("SQL queries executed successfully");
+  } catch (error) {
+    console.error("Error executing SQL queries:", error);
+  }
+}
+
 
 // Call the function to add data to the database
 seedWaterTankerRequests().then(() => {
-  // Indicate that the function has finished
-  console.log("Seed function completed");
+    executeSqlQueries().then(() => {
+        // Indicate that the function has finished
+        console.log("Seed function completed");
+    });
 });
