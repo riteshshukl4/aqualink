@@ -29,3 +29,4 @@ const WaterDropIcon: React.FC<WaterDropIconProps> = ({
 };
 
 export { WaterDropIcon };
+
