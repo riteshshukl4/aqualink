@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { WaterDropIcon } from "@/components/ui/water-drop-icon";
 import { useRouter } from 'next/navigation';
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabaseClient } from "@/lib/supabase";
 
 // Define the structure for a water request
 interface WaterRequest {
@@ -22,28 +23,106 @@ interface WaterRequest {
 
 const DriverPage = () => {
   const router = useRouter();
-  const [requests, setRequests] = useState<WaterRequest[]>([
-    { id: 1, resident: 'Resident A', address: '123 Main St', amount: 1000, urgency: 'high', status: 'pending' },
-    { id: 2, resident: 'Resident B', address: '456 Elm St', amount: 1500, urgency: 'medium', status: 'pending' },
-    { id: 3, resident: 'Resident C', address: '789 Oak St', amount: 800, urgency: 'low', status: 'pending' },
-  ]);
+  const [requests, setRequests] = useState<WaterRequest[]>([]);
   const [routeOptimization, setRouteOptimization] = useState(false);
-  const [todaysDeliveries, setTodaysDeliveries] = useState<WaterRequest[]>([
-    { id: 4, resident: 'Resident D', address: '321 Pine St', amount: 1200, urgency: 'medium', status: 'completed' },
-    { id: 5, resident: 'Resident E', address: '654 Cherry St', amount: 900, urgency: 'low', status: 'completed' },
-  ]);
+  const [todaysDeliveries, setTodaysDeliveries] = useState<WaterRequest[]>([]);
+  const [driverName, setDriverName] = useState<string>('John Doe'); // Default driver name
+
+  useEffect(() => {
+    fetchDriverData();
+  }, []);
+
+  const fetchDriverData = async () => {
+    try {
+      // Fetch pending water requests
+      const { data: pendingRequests, error: pendingError } = await supabaseClient
+        .from('water_requests')
+        .select('*')
+        .eq('status', 'pending')
+        .order('urgency', { ascending: false });
+
+      if (pendingError) {
+        console.error('Error fetching pending water requests:', pendingError);
+      } else {
+        setRequests(pendingRequests || []);
+      }
+
+      // Fetch today's deliveries
+      const today = new Date().toISOString().slice(0, 10);
+      const { data: deliveries, error: deliveriesError } = await supabaseClient
+        .from('water_requests')
+        .select('*')
+        .eq('status', 'completed')
+        .gte('updated_at', today)
+        .lt('updated_at', `${today}T23:59:59`);
+
+      if (deliveriesError) {
+        console.error('Error fetching today\'s deliveries:', deliveriesError);
+      } else {
+        setTodaysDeliveries(deliveries || []);
+      }
+
+      // Fetch driver information (replace 'driver_id' with the actual driver ID)
+      const driverId = 'driver123'; // Replace with the actual driver ID
+      const { data: driverData, error: driverError } = await supabaseClient
+        .from('drivers')
+        .select('name')
+        .eq('id', driverId)
+        .single();
+
+      if (driverError) {
+        console.error('Error fetching driver information:', driverError);
+      } else if (driverData) {
+        setDriverName(driverData.name || 'John Doe');
+      }
+    } catch (error) {
+      console.error('Error fetching driver data:', error);
+    }
+  };
 
   const handleLogout = () => {
     // Implement logout logic here, e.g., clearing authentication tokens
     router.push('/'); // Redirect to the home page after logout
   };
 
-  const acceptRequest = (id: number) => {
-    setRequests(requests.map(req => req.id === id ? { ...req, status: 'accepted' } : req));
+  const acceptRequest = async (id: number) => {
+    try {
+      const { error } = await supabaseClient
+        .from('water_requests')
+        .update({ status: 'accepted' })
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error accepting request:', error);
+        // Optionally, display an error message to the user
+      } else {
+        // Update the local state to reflect the change
+        setRequests(requests.map(req => req.id === id ? { ...req, status: 'accepted' } : req));
+      }
+    } catch (error) {
+      console.error('Error accepting request:', error);
+      // Optionally, display an error message to the user
+    }
   };
 
-  const rejectRequest = (id: number) => {
-    setRequests(requests.map(req => req.id === id ? { ...req, status: 'rejected' } : req));
+  const rejectRequest = async (id: number) => {
+    try {
+      const { error } = await supabaseClient
+        .from('water_requests')
+        .update({ status: 'rejected' })
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error rejecting request:', error);
+        // Optionally, display an error message to the user
+      } else {
+        // Update the local state to reflect the change
+        setRequests(requests.map(req => req.id === id ? { ...req, status: 'rejected' } : req));
+      }
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      // Optionally, display an error message to the user
+    }
   };
 
   // Function to determine badge color based on urgency
@@ -123,7 +202,7 @@ const DriverPage = () => {
             <CardContent>
               <div>
                 <span>Name:</span>
-                <p className="text-lg font-semibold">John Doe</p>
+                <p className="text-lg font-semibold">{driverName}</p>
               </div>
               <Separator className="my-2" />
               <div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Badge } from "@/components/ui/badge";
 import * as React from 'react';
+import { supabaseClient } from "@/lib/supabase";
 
 // Define the structure for a water request
 interface WaterRequest {
@@ -33,51 +34,101 @@ const ResidentPage = () => {
   const router = useRouter();
   const uniqueClipId = React.useMemo(() => `clip-${Math.random().toString(36).substring(2, 15)}`, []);
   const [activeDeliveryOtp, setActiveDeliveryOtp] = useState<string | null>(null);
+  const [requestHistory, setRequestHistory] = useState<WaterRequest[]>([]);
+  const [monthlyUsage, setMonthlyUsage] = useState< { month: string; liters: number; }[]>([]);
+  const [costBreakdown, setCostBreakdown] = useState< { month: string; cost: number; }[]>([]);
 
-  // Dummy data for request history (replace with database fetch)
-  const [requestHistory, setRequestHistory] = useState<WaterRequest[]>([
-    { id: 1, date: "2024-07-01", amount: 1000, status: "fulfilled" },
-    { id: 2, date: "2024-06-15", amount: 1500, status: "fulfilled" },
-    { id: 3, date: "2024-05-20", amount: 800, status: "cancelled" },
-    { id: 4, date: "2024-04-10", amount: 1200, status: "fulfilled" },
-  ]);
+  useEffect(() => {
+    fetchResidentData();
+  }, []);
 
-  // Dummy data for monthly usage graph (replace with database fetch)
-  const [monthlyUsage, setMonthlyUsage] = useState< { month: string; liters: number; }[]>([
-    { month: "Jan", liters: 500 },
-    { month: "Feb", liters: 700 },
-    { month: "Mar", liters: 900 },
-    { month: "Apr", liters: 1200 },
-    { month: "May", liters: 1000 },
-    { month: "Jun", liters: 1500 },
-    { month: "Jul", liters: 1100 },
-  ]);
+  const fetchResidentData = async () => {
+    try {
+      // Fetch request history
+      const { data: historyData, error: historyError } = await supabaseClient
+        .from('water_requests')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(4);
 
-  // Dummy data for cost breakdown (replace with database fetch)
-  const [costBreakdown, setCostBreakdown] = useState< { month: string; cost: number; }[]>([
-    { month: "Jan", cost: 5.00 },
-    { month: "Feb", cost: 7.00 },
-    { month: "Mar", cost: 9.00 },
-    { month: "Apr", cost: 12.00 },
-    { month: "May", cost: 10.00 },
-    { month: "Jun", cost: 15.00 },
-    { month: "Jul", cost: 11.00 },
-  ]);
+      if (historyError) {
+        console.error('Error fetching request history:', historyError);
+      } else {
+        setRequestHistory(historyData || []);
+      }
+
+      // Fetch monthly usage graph data
+      const { data: usageData, error: usageError } = await supabaseClient
+        .from('monthly_usage')
+        .select('*')
+        .order('month', { ascending: true })
+        .limit(7);
+
+      if (usageError) {
+        console.error('Error fetching monthly usage:', usageError);
+      } else {
+        setMonthlyUsage(usageData || []);
+      }
+
+      // Fetch cost breakdown data
+      const { data: costData, error: costError } = await supabaseClient
+        .from('cost_breakdown')
+        .select('*')
+        .order('month', { ascending: true })
+        .limit(7);
+
+      if (costError) {
+        console.error('Error fetching cost breakdown:', costError);
+      } else {
+        setCostBreakdown(costData || []);
+      }
+
+    } catch (error) {
+      console.error('Error fetching resident data:', error);
+    }
+  };
 
   const handleWaterRequest = async () => {
     setIsRequesting(true);
-    // Simulate an async request
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setRequestStatus("pending");
-    setIsRequesting(false);
-    toast({
-      title: "Request Submitted",
-      description: "Your water request has been submitted and is pending approval.",
-    });
+    try {
+      // Add new water request to the database
+      const { data, error } = await supabaseClient
+        .from('water_requests')
+        .insert([{
+          address: address,
+          amount: amount,
+          details: details,
+          status: 'pending',
+        }]);
 
-    // Generate a sample OTP and store it in state
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    setActiveDeliveryOtp(otp);
+      if (error) {
+        console.error('Error submitting water request:', error);
+        toast({
+          title: "Request Failed",
+          description: "There was an error submitting your request.",
+          variant: "destructive",
+        });
+      } else {
+        setRequestStatus("pending");
+        toast({
+          title: "Request Submitted",
+          description: "Your water request has been submitted and is pending approval.",
+        });
+
+        // Generate a sample OTP and store it in state
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        setActiveDeliveryOtp(otp);
+      }
+    } catch (error) {
+      console.error('Error submitting water request:', error);
+      toast({
+        title: "Request Failed",
+        description: "There was an error submitting your request.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRequesting(false);
+    }
   };
 
   const handleLogout = () => {
