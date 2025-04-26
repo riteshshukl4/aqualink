@@ -1,5 +1,5 @@
-// src/utils/supabase-seed.ts
-import supabaseClient from "@/lib/supabase";
+import { supabaseClient } from "@/lib/supabase"; // Import the configured supabaseClient
+
 
 // Define the type for water tanker request data
 interface WaterTankerRequest {
@@ -60,12 +60,25 @@ const initialWaterTankerRequests: WaterTankerRequest[] = [
  * This function uses the supabaseClient to interact with the database.
  */
 async function seedWaterTankerRequests(): Promise<void> {
-  try {
-    const { data, error } = await supabaseClient
-      .from("water_tanker_requests")
-      .insert(initialWaterTankerRequests);
 
-    if (error) {
+  try {
+    const { data, error } = await supabaseClie    if (data.length === 0) {
+      const { data: insertData, error: insertError } = await supabaseClient
+        .from("water_tanker_requests")
+        .insert(initialWaterTankerRequests);
+      if (insertError) {
+        console.error("Error seeding water tanker requests:", insertError);
+      } else {
+        console.log("Water tanker requests seeded successfully:", insertData);
+      }
+    } else {
+      console.log("Water tanker requests already seeded.");
+    }
+nt
+      .from("water_tanker_requests")
+      .select("*")
+      .limit(0);
+      if (error) {
       // Log the error if the insertion fails
       console.error("Error seeding water tanker requests:", error);
     } else {
@@ -205,13 +218,19 @@ const sqlQueries = [
 
 async function executeSqlQueries(): Promise<void> {
   try {
+
     for (const query of sqlQueries) {
-      const { error } = await supabaseClient.from('residents').select('*').limit(0)
+        const { error } = await supabaseClient.query(query)
+        
       if (error) {
-        const { error: queryError } = await supabaseClient.query(query);
-        if (queryError) {
-          console.error("Error executing SQL query:", queryError);
-        }
+        console.error(
+
+          
+            "Error executing SQL query:",
+            query,
+            error
+
+        );
       }
     }
     console.log("SQL queries executed successfully");
@@ -222,9 +241,10 @@ async function executeSqlQueries(): Promise<void> {
 
 
 // Call the function to add data to the database
-seedWaterTankerRequests().then(() => {
-    executeSqlQueries().then(() => {
-        // Indicate that the function has finished
-        console.log("Seed function completed");
-    });
-});
+seedWaterTankerRequests()
+  .then(() => executeSqlQueries())
+  .then(() => {
+    // Indicate that the function has finished
+    console.log("Seed function completed");
+  });
+

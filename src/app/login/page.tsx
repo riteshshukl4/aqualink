@@ -46,12 +46,10 @@ export default function AuthPage() {
   });
 
   const handleSendOTP = async (data: FormValues) => {
-    // Add your OTP sending logic here
     setIsVerifying(true);
 
-    // Send OTP using Supabase Auth (Email OTP for now)
     const { error } = await supabaseClient.auth.signInWithOtp({
-      phone: data.phoneNumber,
+      phone: `+1${data.phoneNumber}`,
     });
 
     if (error) {
@@ -68,13 +66,11 @@ export default function AuthPage() {
       title: "OTP Sent",
       description: "Please check your phone for the verification code",
     });
-    console.log("Form Data:", data); // For testing
   };
 
   const handleVerifyOTP = async (data: FormValues) => {
-    // Verify OTP using Supabase Auth
     const { data: authData, error } = await supabaseClient.auth.verifyOtp({
-      phone: data.phoneNumber,
+      phone: `+1${data.phoneNumber}`,
       token: otp,
       type: 'sms',
     });
@@ -87,13 +83,8 @@ export default function AuthPage() {
       });
       return;
     }
-
-    toast({
-      title: "Success",
-      description: "You have been successfully authenticated",
-    });
-
-    // Replace with actual authentication logic
+      console.log(authData);
+    // authentication logic
     switch (data.role) {
       case "user":
         router.push('/resident');
