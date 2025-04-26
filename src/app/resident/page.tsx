@@ -26,7 +26,7 @@ interface WaterRequest {
 }
 
 const ResidentPage = () => {
-  const [requestStatus, setRequestStatus<"pending" | "fulfilled" | "none">("none");
+  const [requestStatus, setRequestStatus] = useState<"pending" | "fulfilled" | "none">("none");
   const [isRequesting, setIsRequesting] = useState<boolean>(false);
   const [estimatedPrice, setEstimatedPrice<number | null>(null);
   const [address, setAddress] = useState("");
@@ -61,7 +61,7 @@ const ResidentPage = () => {
         .from('water_requests')
         .select('*')
         .eq('resident_id', userId) //  RLS: Only fetch requests for the current user
-        .order('date', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(4);
 
       if (historyError) {
@@ -106,11 +106,22 @@ const ResidentPage = () => {
   const handleWaterRequest = async () => {
     setIsRequesting(true);
     try {
+      // Fetch the current user's ID
+      const { data: { user } } = await supabaseClient.auth.getUser();
+
+      if (!user) {
+        console.error('User not authenticated.');
+        router.push('/login'); // Redirect to login if not authenticated
+        return;
+      }
+
+      const userId = user.id;
+
       // Add new water request to the database
       const { data, error } = await supabaseClient
         .from('water_requests')
         .insert([{
-          resident_id: (await supabaseClient.auth.getUser()).data.user?.id,
+          resident_id: userId,
           address: address,
           amount: amount,
           details: details,
@@ -195,8 +206,8 @@ const ResidentPage = () => {
                   }} onBlur={calculatePrice} />
                 </div>
                 <div>
-                  <Label htmlFor="urgency">Additional Details</Label>
-                  <Textarea id="urgency" placeholder="Any specific instructions or urgency details?" value={details} onChange={(e) => setDetails(e.target.value)} />
+                  <Label htmlFor="details">Additional Details</Label>
+                  <Textarea id="details" placeholder="Any specific instructions or urgency details?" value={details} onChange={(e) => setDetails(e.target.value)} />
                 </div>
                 <Button onClick={handleWaterRequest} disabled={isRequesting}>
                   {isRequesting ? "Submitting..." : "Request Water"}
